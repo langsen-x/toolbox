@@ -1,25 +1,33 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
+import toolRouters from './tool'
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    redirect: '/index',
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
+    path: '/index',
+    name: 'Index',
+    component: () => import(/* webpackChunkName: "index" */ '@views/index.vue'),
+    meta: {
+      keepAlive: true,
+    },
+  },
+  ...toolRouters,
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes
+  history: createWebHistory(process.env.VUE_APP_PUBLIC_PATH || '/toolbox/'),
+  routes,
+})
+
+// 路由导航成功钩子，在这里可以做一些操作，比如修改页面标题、调用统计接口等
+router.afterEach((to, from) => {
+  // 修改页面title
+  if (to.meta?.title) {
+    document.title = to.meta.title
+  }
 })
 
 export default router

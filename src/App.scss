@@ -1,0 +1,42 @@
+$main-color: #F5FFF1;
+$primary-text-color: #E8AB68;
+$btn-bg-color: #E9B57C;
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background-color: rgb(245, 247, 249);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: rgba(144, 147, 153, .3);
+}
+
+
+.ie-scrollbar-no {
+  -ms-overflow-style: none;
+}
+
+.ie-scrollbar {
+  scrollbar-width: 5px;
+  scrollbar-face-color: rgba(144, 147, 153, .3);
+  scrollbar-shadow-color: rgba(144, 147, 153, .3);
+  scrollbar-arrow-color: white;
+}
+
+@font-face {
+  font-family: 'hei';
+  src: url('~@components/id-card/fonts/hei.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'fzzdxjw-gb1-0';
+  src: url('~@components/id-card/fonts/fzzdxjw-gb1-0.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'ocrb10bt';
+  src: url('~@components/id-card/fonts/ocrb10bt.ttf') format('truetype');
+}

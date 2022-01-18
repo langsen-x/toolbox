@@ -1,0 +1,11 @@
+.sub-select {
+  display: flex;
+
+  &__btn {
+    margin-left: 20px;
+  }
+
+  .el-select + .el-select {
+    margin-left: 20px;
+  }
+}
