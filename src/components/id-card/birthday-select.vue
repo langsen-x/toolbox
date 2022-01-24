@@ -35,73 +35,7 @@
 
 <script>
 import { onBeforeMount, ref } from 'vue'
-
-const monthBig = Array(31).fill(0).map((i, idx) => {
-  i = idx + 1
-  return i
-})
-const monthSmall = Array(30).fill(0).map((i, idx) => {
-  i = idx + 1
-  return i
-})
-const monthLeap = Array(29).fill(0).map((i, idx) => {
-  i = idx + 1
-  return i
-})
-const monthNoLeap = Array(28).fill(0).map((i, idx) => {
-  i = idx + 1
-  return i
-})
-const dayList = [
-  {
-    label: 1,
-    value: monthBig,
-  },
-  {
-    label: 2,
-    value: monthNoLeap,
-  },
-  {
-    label: 3,
-    value: monthBig,
-  },
-  {
-    label: 4,
-    value: monthSmall,
-  },
-  {
-    label: 5,
-    value: monthBig,
-  },
-  {
-    label: 6,
-    value: monthSmall,
-  },
-  {
-    label: 7,
-    value: monthBig,
-  },
-  {
-    label: 8,
-    value: monthBig,
-  },
-  {
-    label: 9,
-    value: monthSmall,
-  },
-  {
-    label: 10,
-    value: monthBig,
-  },
-  {
-    label: 11,
-    value: monthSmall,
-  },
-  {
-    label: 12,
-    value: monthBig,
-  },
-]
+import { dayList, monthLeap, monthNoLeap } from '@config'
 
 export default {
   name: 'birthday-select',

@@ -12,6 +12,23 @@
           <birthday-select ref="birthdayRef" @clear="clearResultData"></birthday-select>
         </div>
         <div class="select__row">
+          <div class="select__row-multi" style="margin-right: 20px !important;">
+            <p class="select__row-p">指定年龄：</p>
+            <el-input class="unique-age" :disabled="!uniqueAge" v-model="uniqueAgeVal" clearable
+                      maxlength="2"/>
+          </div>
+          <el-switch v-model="uniqueAge"/>
+          <div class="select__row-multi" style="margin-right: 20px !important;">
+            <p class="select__row-p">年龄段：</p>
+            <el-input class="unique-age" :disabled="!uniqueAgeRange" v-model="uniqueAgeRangeStartVal" clearable
+                      maxlength="2"/>
+            <p>&nbsp;-&nbsp;</p>
+            <el-input class="unique-age" :disabled="!uniqueAgeRange" v-model="uniqueAgeRangeEndVal" clearable
+                      maxlength="2"/>
+          </div>
+          <el-switch v-model="uniqueAgeRange"/>
+        </div>
+        <div class="select__row">
           <div class="select__row-multi">
             <p class="select__row-p">性别：</p>
             <gender-select ref="genderRef" @clear="clearResultData"></gender-select>
@@ -34,14 +51,14 @@
               </div>
             </template>
             <template #default="scope">
-              <el-input class="modify-name" :disabled="!switchName" v-model="scope.row.name" clearable maxLength="10"/>
+              <el-input class="modify-name" :disabled="!switchName" v-model="scope.row.name" clearable maxlength="10"/>
             </template>
           </el-table-column>
           <el-table-column prop="age" label="年龄" width="80"></el-table-column>
           <el-table-column prop="cardNo" label="身份证号"/>
           <el-table-column label="其他" width="380">
-            <el-input class="extra-card" v-model="cardAddressDetail" placeholder="详细地址" clearable maxLength="20"/>
-            <el-input class="extra-card" v-model="cardDepartment" placeholder="签发机关" clearable maxLength="20"/>
+            <el-input class="extra-card" v-model="cardAddressDetail" placeholder="详细地址" clearable maxlength="20"/>
+            <el-input class="extra-card" v-model="cardDepartment" placeholder="签发机关" clearable maxlength="20"/>
             <div class="extra-card extra-period">
               <el-date-picker v-model="cardPeriodFront" type="date" placeholder="有效起期" value-format="YYYY/MM/DD"
                               format="YYYY-MM-DD" clearable>
@@ -95,6 +112,8 @@ import CountSelect from '@components/id-card/count-select'
 import clipboard from 'copy-text-to-clipboard'
 import { genImg } from '@components/id-card/js'
 import { areaList } from '@config/area'
+import { firstNames, lastCodeArr, lastNames, monthBig, monthLeap, monthNoLeap, monthSmall, prefixArr } from '@config'
+import { DateUtil } from 'sn-js-utils'
 
 const {
   // eslint-disable-next-line camelcase
@@ -104,25 +123,6 @@ const {
   // eslint-disable-next-line camelcase
   county_list,
 } = areaList
-const prefixArr = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2] // 前17位计算系数
-const lastCodeArr = [1, 0, 'X', 9, 8, 7, 6, 5, 4, 3, 2]
-const firstNames = (
-  '王 李 张 刘 陈 杨 赵 黄 周 吴 ' +
-  '徐 孙 胡 朱 高 林 何 郭 马 罗 ' +
-  '梁 宋 郑 谢 韩 唐 冯 于 董 萧 ' +
-  '程 曹 袁 邓 许 傅 沈 曾 彭 吕 ' +
-  '苏 卢 蒋 蔡 贾 丁 魏 薛 叶 阎 ' +
-  '余 潘 杜 戴 夏 锺 汪 田 任 姜 ' +
-  '范 方 石 姚 谭 廖 邹 熊 金 陆 ' +
-  '郝 孔 白 崔 康 毛 邱 秦 江 史 ' +
-  '顾 侯 邵 孟 龙 万 段 雷 钱 汤 ' +
-  '尹 黎 易 常 武 乔 贺 赖 龚 文'
-).split(' ')
-const lastNames = (
-  '伟 芳 娜 秀英 敏 静 丽 强 磊 军 ' +
-  '洋 勇 艳 杰 娟 涛 明 超 秀兰 霞 ' +
-  '平 刚 桂英'
-).split(' ')
 
 export default {
   name: 'idCard',
@@ -156,12 +156,27 @@ export default {
       code: '',
       text: '',
     })
+    const uniqueAge = ref(false)
+    const uniqueAgeVal = ref('')
+    const uniqueAgeRange = ref(false)
+    const uniqueAgeRangeStartVal = ref('')
+    const uniqueAgeRangeEndVal = ref('')
     // watch
     watch(areaAddress, (newVal, oldVal) => {
       if (areaRef.value) {
         getAddressText()
       }
     }, { deep: true })
+    watch(uniqueAge, (newVal, oldVal) => {
+      if (newVal) {
+        uniqueAgeRange.value = false
+      }
+    })
+    watch(uniqueAgeRange, (newVal, oldVal) => {
+      if (newVal) {
+        uniqueAge.value = false
+      }
+    })
     // methods
     const addZero = (data) => {
       if (data >= 1 && data < 10) {
@@ -180,12 +195,7 @@ export default {
     // 计算年龄
     const calculateAge = (data) => {
       if (!data) return -1
-      const {
-        yearVal,
-        monthVal,
-        dayVal,
-      } = data
-      const birthday = yearVal.toString() + '/' + addZero(monthVal) + '/' + addZero(dayVal)
+      const birthday = data.slice(0, 4) + '/' + data.slice(4, 6) + '/' + data.slice(6, 8)
       let returnAge
       const strBirthdayArr = new Date(birthday)
       const birthYear = strBirthdayArr.getFullYear()
@@ -233,7 +243,7 @@ export default {
     }
     // 获取指定范围内的随机数
     const randomAccess = (min, max) => {
-      return Math.floor(Math.random() * (min - max) + max)
+      return Math.floor(Math.random() * (max - min)) + min
     }
     // 生成随机姓名
     const getRandomName = () => {
@@ -272,7 +282,7 @@ export default {
         gender,
         count,
       ] = obj
-      const age = calculateAge(birthdayRef.value)
+      const age = calculateAge(birthday)
       const codeList = getCodeList(gender, count)
       codeList.forEach((code) => {
         if (code.toString().length < 3) {
@@ -290,6 +300,152 @@ export default {
           name: getRandomName(),
           cardNo: `${frontCode}${lastCode}`,
           age: age,
+        })
+      })
+      return cardNoList
+    }
+    // 得到可以选择的天数
+    const getDateDayList = (year, month, type, day) => {
+      // 条件:能被4整除并且不能被100整除，或者被400整除的
+      if ([1, 3, 5, 7, 8, 10, 12].includes(month)) {
+        if (day) {
+          if (type === 'before') {
+            return monthBig.slice(day - 1, monthBig.length)
+          } else if (type === 'after') {
+            return monthBig.slice(0, day - 1)
+          }
+        }
+        return monthBig
+      } else if ([4, 6, 9, 11].includes(month)) {
+        if (day) {
+          if (type === 'before') {
+            return monthSmall.slice(day - 1, monthSmall.length)
+          } else if (type === 'after') {
+            return monthSmall.slice(0, day - 1)
+          }
+        }
+        return monthSmall
+      } else { // 2
+        let flag = false
+        if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
+          flag = true
+        }
+        if (flag) {
+          if (day) {
+            if (type === 'before') {
+              return monthLeap.slice(day - 1, monthLeap.length)
+            } else if (type === 'after') {
+              return monthLeap.slice(0, day - 1)
+            }
+          }
+          return monthLeap
+        } else {
+          if (day) {
+            if (type === 'before') {
+              return monthNoLeap.slice(day - 1, monthNoLeap.length)
+            } else if (type === 'after') {
+              return monthNoLeap.slice(0, day - 1)
+            }
+          }
+          return monthNoLeap
+        }
+      }
+    }
+    // 生成某个日期到某个日期（指定年龄）之间指定数量的所有日期list（生成18位身份证）
+    const getDateDiffList = (ageDiff, obj) => {
+      const [
+        diffStartYear,
+        diffEndYear,
+      ] = ageDiff
+      const nowStr = DateUtil.formatDate(new Date(), 'yyyy-MM-dd')
+      const startDate = DateUtil.dateBefore(nowStr, {
+        year: diffStartYear + 1,
+        day: -1,
+      })
+      const endDate = DateUtil.dateBefore(nowStr, {
+        year: diffEndYear,
+      })
+      const beforeYear = startDate.getFullYear()
+      const beforeMonth = startDate.getMonth() + 1
+      const beforeDay = startDate.getDate()
+      const afterYear = endDate.getFullYear()
+      const afterMonth = endDate.getMonth() + 1
+      const afterDay = endDate.getDate()
+      let yearList = []
+      for (let i = beforeYear; i < afterYear; i++) {
+        yearList.push(i)
+      }
+      const startDateObj = {
+        type: 'before',
+        year: beforeYear,
+        yearList: yearList,
+        month: beforeMonth,
+        monthList: Array(12 - beforeMonth + 1).fill(0).map((i, idx) => {
+          i = idx + beforeMonth
+          return i
+        }),
+        day: beforeDay,
+      }
+      const endDateObj = {
+        type: 'after',
+        year: afterYear,
+        yearList: [afterYear],
+        month: afterMonth,
+        monthList: Array(afterMonth).fill(0).map((i, idx) => {
+          i = idx + 1
+          return i
+        }),
+        day: afterDay,
+      }
+      // console.log('startDateObj:', startDateObj)
+      // console.log('endDateObj:', endDateObj)
+      const dateObjList = [
+        startDateObj,
+        endDateObj,
+      ]
+      yearList = startDateObj.yearList.concat(endDateObj.yearList)
+      // console.log('dateObjList:', dateObjList)
+      // console.log('yearList:', yearList)
+      const [
+        area,
+        gender,
+        count,
+      ] = obj
+      const isSame = diffStartYear === diffEndYear
+      const birthdayList = []
+      const cardNoList = []
+      for (let i = 0; i < count; i++) {
+        const randomYear = yearList[randomAccess(0, yearList.length)]
+        const obj = dateObjList.find(i => i.yearList.includes(randomYear))
+        const randomMonth = obj.monthList[randomAccess(0, obj.monthList.length)]
+        let randomDayList
+        if (randomMonth === beforeMonth && [diffStartYear, diffEndYear].includes(randomYear)) {
+          randomDayList = getDateDayList(randomYear, randomMonth, obj.type, beforeDay)
+        } else {
+          randomDayList = getDateDayList(randomYear, randomMonth)
+        }
+        const randomDay = randomDayList[randomAccess(0, randomDayList.length)]
+        birthdayList.push(randomYear + addZero(randomMonth) + addZero(randomDay))
+      }
+      const codeList = getCodeList(gender, count)
+      // console.log('codeList:', codeList)
+      codeList.forEach((code, idx) => {
+        const curBirthDay = birthdayList?.[idx] || ''
+        if (code.toString().length < 3) {
+          code = ('0'.repeat(3) + code).slice(-3)
+        }
+        const frontCode = `${area}${curBirthDay}${code}`
+        const frontArr = [...frontCode]
+        let lastCode = ''
+        let sum = 0
+        for (let j = 0; j < frontCode.length; j++) {
+          sum = sum + Number(frontArr[j]) * prefixArr[j]
+        }
+        lastCode = lastCodeArr[sum % 11]
+        cardNoList.push({
+          name: getRandomName(),
+          cardNo: `${frontCode}${lastCode}`,
+          age: isSame ? diffStartYear : calculateAge(curBirthDay),
         })
       })
       return cardNoList
@@ -313,8 +469,36 @@ export default {
       // console.log('birthdayVal:', birthdayVal)
       // console.log('genderVal:', genderVal)
       // console.log('countVal:', countVal)
+      if (uniqueAge.value) {
+        if (!uniqueAgeVal.value.trim()) {
+          globalProperties.$message.warning('请输入指定年龄')
+          return
+        }
+        const age = parseInt(uniqueAgeVal.value)
+        if (isNaN(age)) {
+          globalProperties.$message.warning('请输入正确的年龄')
+          return
+        }
+        resultData.value = getDateDiffList([age, age], [countryVal, genderVal, countVal])
+        return
+      }
+      if (uniqueAgeRange.value) {
+        const ageStart = parseInt(uniqueAgeRangeStartVal.value)
+        const ageEnd = parseInt(uniqueAgeRangeEndVal.value)
+        if (isNaN(ageStart) || isNaN(ageEnd)) {
+          globalProperties.$message.warning('请输入正确的年龄段')
+          return
+        }
+        if (ageStart >= ageEnd) {
+          return globalProperties.$message.warning('截止年龄应大于起始年龄')
+        }
+        // console.log(ageStart, ageEnd)
+        resultData.value = getDateDiffList([ageEnd, ageStart], [countryVal, genderVal, countVal])
+        return
+      }
       resultData.value = getCardNoList([countryVal, birthdayVal, genderVal, countVal])
     }
+    // 复制身份证号
     const copyCardNo = (cardNo) => {
       if (clipboard(cardNo)) {
         globalProperties.$message.success('复制成功')
@@ -322,6 +506,7 @@ export default {
         globalProperties.$message.error('复制失败')
       }
     }
+    // 生成身份证图片
     const genIdCardPicture = (data) => {
       if (!areaAddress.text) {
         console.log('gen address')
@@ -362,6 +547,11 @@ export default {
       idCardDialogVisible,
       switchName,
       ...toRefs(extra),
+      uniqueAge,
+      uniqueAgeVal,
+      uniqueAgeRange,
+      uniqueAgeRangeStartVal,
+      uniqueAgeRangeEndVal,
     }
   },
 }
@@ -397,11 +587,19 @@ export default {
       box-sizing: border-box;
       margin-bottom: 20px;
 
+      .el-switch {
+        margin-right: 63px;
+      }
+
       &-multi {
         display: flex;
         justify-content: flex-start;
         align-items: center;
         margin-right: 140px;
+      }
+
+      .unique-age {
+        width: 120px;
       }
 
       &-p {
