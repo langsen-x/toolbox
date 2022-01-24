@@ -42,7 +42,7 @@
       </div>
       <div class="result">
         <el-table :data="resultData" border style="width: 1000px" header-cell-class-name="table-th" empty-text="暂无数据">
-          <el-table-column type=index label="序号" width="80"/>
+          <el-table-column type=index label="序号" width="70"/>
           <el-table-column prop="name" label="姓名" width="140">
             <template #header>
               <div style="display: flex; align-items: center">
@@ -54,8 +54,12 @@
               <el-input class="modify-name" :disabled="!switchName" v-model="scope.row.name" clearable maxlength="10"/>
             </template>
           </el-table-column>
-          <el-table-column prop="age" label="年龄" width="80"></el-table-column>
-          <el-table-column prop="cardNo" label="身份证号"/>
+          <el-table-column prop="age" label="年龄" width="70"></el-table-column>
+          <el-table-column prop="cardNo" label="身份证号">
+            <template #default="scope">
+              <p class="cardNo-p">{{ scope.row.cardNo }}</p>
+            </template>
+          </el-table-column>
           <el-table-column label="其他" width="380">
             <el-input class="extra-card" v-model="cardAddressDetail" placeholder="详细地址" clearable maxlength="20"/>
             <el-input class="extra-card" v-model="cardDepartment" placeholder="签发机关" clearable maxlength="20"/>
@@ -616,6 +620,7 @@ export default {
 
     .el-table {
       margin: 0 auto;
+      color: #333333;
 
       ::v-deep(.table-th) {
         color: #333333;
@@ -629,6 +634,12 @@ export default {
           color: #606266;
           cursor: default;
         }
+      }
+
+      .cardNo-p {
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        font-size: 15px;
       }
     }
 
