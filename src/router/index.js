@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import toolRouters from './tool'
 
 const routes = [
@@ -18,7 +18,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.VUE_APP_PUBLIC_PATH || '/toolbox/'),
+  history: createWebHashHistory(process.env.VUE_APP_PUBLIC_PATH || '/toolbox/'),
   routes,
 })
 
