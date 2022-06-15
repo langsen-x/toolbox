@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'hei';
+    src: url('hei.eot'); /* 兼容IE9 */
+    src: url('hei.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+        url('hei.woff2') format('woff2'), /* 最新浏览器 */
+        url('hei.woff') format('woff'), /* 较新浏览器 */
+        url('hei.ttf')  format('truetype'), /* Safari、Android、iOS */
+        url('hei.svg#svgFontName') format('svg'); /* 早期iOS */
+}
