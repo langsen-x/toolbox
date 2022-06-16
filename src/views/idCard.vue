@@ -43,10 +43,12 @@
         </div>
       </div>
       <div class="result">
+        <el-pagination background layout="prev, pager, next" :total="resultData.length" :current-page="currentPage"
+                       :page-size="pageSize" @current-change="changeCurrentPage"/>
         <el-table :data="tableData" border style="width: 1000px" header-cell-class-name="table-th" empty-text="暂无数据"
                   v-loading="genDataLoading">
-          <el-table-column prop="idx" label="序号" width="70"/>
-          <el-table-column prop="name" label="姓名" width="140">
+          <el-table-column prop="idx" label="序号" width="60"/>
+          <el-table-column prop="name" label="姓名" width="130">
             <template #header>
               <div style="display: flex; align-items: center">
                 <p>姓名</p>
@@ -94,8 +96,6 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-pagination background layout="prev, pager, next" :total="resultData.length" :current-page="currentPage"
-                       :page-size="pageSize" @current-change="changeCurrentPage" v-if="resultData.length !== 0"/>
       </div>
       <el-backtop/>
     </div>
@@ -302,7 +302,7 @@ const getCardNoList = (obj) => {
     for (let j = 0; j < frontCode.length; j++) {
       sum = sum + Number(frontArr[j]) * prefixArr[j]
     }
-    const lastCode = lastCodeArr[sum % 11] || ''
+    const lastCode = lastCodeArr[sum % 11]
     cardNoList.push({
       idx: idx + 1,
       name: getRandomName(),
@@ -448,7 +448,7 @@ const getDateDiffList = (ageDiff, obj) => {
     for (let j = 0; j < frontCode.length; j++) {
       sum = sum + Number(frontArr[j]) * prefixArr[j]
     }
-    const lastCode = lastCodeArr[sum % 11] || ''
+    const lastCode = lastCodeArr[sum % 11]
     cardNoList.push({
       idx: idx + 1,
       name: getRandomName(),
@@ -495,26 +495,24 @@ const genResultData = () => {
     // console.log('birthdayVal:', birthdayVal)
     // console.log('genderVal:', genderVal)
     // console.log('countVal:', countVal)
-    if (uniqueAge.value) {
-      const age = parseInt(uniqueAgeVal.value)
-      try {
+    try {
+      if (uniqueAge.value) {
+        const age = parseInt(uniqueAgeVal.value)
         _checkUniqueAge(age)
-      } catch (e) {
-        globalProperties.$message.warning(e.message)
-      }
-      resultData.value = getDateDiffList([age, age], [countryVal, genderVal, countVal])
-    } else if (uniqueAgeRange.value) {
-      const ageStart = parseInt(uniqueAgeRangeStartVal.value)
-      const ageEnd = parseInt(uniqueAgeRangeEndVal.value)
-      // console.log(ageStart, ageEnd)
-      try {
+        resultData.value = getDateDiffList([age, age], [countryVal, genderVal, countVal])
+      } else if (uniqueAgeRange.value) {
+        const ageStart = parseInt(uniqueAgeRangeStartVal.value)
+        const ageEnd = parseInt(uniqueAgeRangeEndVal.value)
+        // console.log(ageStart, ageEnd)
         _checkUniqueAgeRange(ageStart, ageEnd)
-      } catch (e) {
-        globalProperties.$message.warning(e.message)
+        resultData.value = getDateDiffList([ageEnd, ageStart], [countryVal, genderVal, countVal])
+      } else {
+        resultData.value = getCardNoList([countryVal, birthdayVal, genderVal, countVal])
       }
-      resultData.value = getDateDiffList([ageEnd, ageStart], [countryVal, genderVal, countVal])
-    } else {
-      resultData.value = getCardNoList([countryVal, birthdayVal, genderVal, countVal])
+    } catch (e) {
+      globalProperties.$message.warning(e.message)
+      genDataLoading.value = false
+      return
     }
     genDataLoading.value = false
   }, 100)
@@ -619,7 +617,7 @@ const changeCurrentPage = (e) => {
   }
 
   .result {
-    font-family: 'hei';
+    font-family: 'fzzdxjw-gb1-0';
 
     .el-pagination {
       display: flex;
@@ -635,7 +633,7 @@ const changeCurrentPage = (e) => {
 
       ::v-deep(.table-th) {
         color: #333333;
-        font-family: 'fzzdxjw-gb1-0';
+        font-family: 'STXihei';
       }
 
       .modify-name.is-disabled {
@@ -649,8 +647,8 @@ const changeCurrentPage = (e) => {
 
       .cardNo-p {
         font-weight: bold;
-        letter-spacing: 0.5px;
-        font-size: 15px;
+        letter-spacing: 1px;
+        font-size: 16px;
       }
     }
 

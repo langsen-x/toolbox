@@ -307,13 +307,13 @@ function image2Canvas({
   ctx.drawImage(avatar, 750, 335, 270, 330)
 
   ctx.fillStyle = 'black'
-  ctx.font = '36px hei'
+  ctx.font = '36px STXihei'
   ctx.fillText(config.name, 330, 355) // +45
 
   ctx.textBaseline = 'bottom'
 
   // 第二行
-  ctx.font = '33px hei'
+  ctx.font = '33px STXihei'
   ctx.fillText(config.gender, 330, 437)
   ctx.fillText('汉', 520, 437)
   // 第四行 住址
