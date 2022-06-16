@@ -248,9 +248,12 @@ export function genImg(config) {
   const DOMelement = document.getElementById('emptyBg')
   const img = new Image()
   img.src = DOMelement.src
-  const DOMelement2 = document.getElementById('avatarImg')
+  // const DOMelement2 = document.getElementById('avatarImg')
+  // const avatarImg = new Image()
+  // avatarImg.src = DOMelement2.src
+
   const avatarImg = new Image()
-  avatarImg.src = DOMelement2.src
+  avatarImg.src = config.avatar
 
   image2Canvas({
     image: img,

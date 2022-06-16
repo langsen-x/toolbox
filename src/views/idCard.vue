@@ -66,32 +66,47 @@
             </template>
           </el-table-column>
           <el-table-column label="其他" width="380">
-            <el-input class="extra-card" v-model="extra.cardAddressDetail" placeholder="详细地址" clearable maxlength="20"/>
-            <el-input class="extra-card" v-model="extra.cardDepartment" placeholder="签发机关" clearable maxlength="20"/>
-            <div class="extra-card extra-period">
-              <el-date-picker v-model="extra.cardPeriodFront" type="date" placeholder="有效起期" value-format="YYYY/MM/DD"
-                              format="YYYY-MM-DD" clearable>
-              </el-date-picker>
-              <el-date-picker v-model="extra.cardPeriodEnd" type="date" placeholder="有效止期" value-format="YYYY/MM/DD"
-                              format="YYYY-MM-DD" clearable>
-              </el-date-picker>
-            </div>
+            <template #default="scope">
+              <el-input class="extra-card" v-model="scope.row.cardAddressDetail" placeholder="详细地址" clearable
+                        maxlength="20"/>
+              <el-input class="extra-card" v-model="scope.row.cardDepartment" placeholder="签发机关" clearable
+                        maxlength="20"/>
+              <div class="extra-card extra-period">
+                <el-date-picker v-model="scope.row.cardPeriodFront" type="date" placeholder="有效起期"
+                                value-format="YYYY/MM/DD"
+                                format="YYYY-MM-DD" clearable>
+                </el-date-picker>
+                <el-date-picker v-model="scope.row.cardPeriodEnd" type="date" placeholder="有效止期"
+                                value-format="YYYY/MM/DD"
+                                format="YYYY-MM-DD" clearable>
+                </el-date-picker>
+              </div>
+            </template>
           </el-table-column>
           <el-table-column label="操作" width="130">
             <template #default="scope">
               <el-button
-                type="text"
-                size="small"
+                text
+                type="primary"
                 @click="copyCardNo(scope.row.cardNo)"
               >
                 复制
               </el-button>
               <el-button
-                type="text"
-                size="small"
+                style="margin-left: unset !important;"
+                text
+                type="primary"
                 @click="genIdCardPicture(scope.row)"
               >
                 生成图片
+              </el-button>
+              <el-button
+                style="margin-left: unset !important;"
+                text
+                type="primary"
+                @click="changeAvatarImg(scope.row.idx)"
+              >
+                更换头像
               </el-button>
             </template>
           </el-table-column>
@@ -101,7 +116,6 @@
     </div>
     <div class="modal">
       <img id="emptyBg" src="../components/id-card/assets/empty.png" alt="" style="display: none">
-      <img id="avatarImg" src="../components/id-card/assets/avatar.png" alt="" style="display: none">
       <el-dialog
         v-model="idCardDialogVisible"
         title="身份证图片"
@@ -109,11 +123,28 @@
         <img id="idCardImg" class="idCardImg" src="" alt=""/>
       </el-dialog>
     </div>
+
+    <div class="modal">
+      <img id="avatarImg" :src="defaultAvatar" alt="" style="display: none">
+      <el-dialog
+        v-model="avatarVisible"
+        title="更换头像"
+        width="20%">
+        <div class="avatar-uploader">
+          <div class="avatar el-upload" @click="uploadAvatar">
+            <img class="avatar" :src="curAvatar" alt=""/>
+            <el-icon class="avatar-uploader-icon">
+              <Plus/>
+            </el-icon>
+          </div>
+        </div>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed, getCurrentInstance, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import AreaSelect from '@components/id-card/area-select'
 import BirthdaySelect from '@components/id-card/birthday-select'
 import GenderSelect from '@components/id-card/gender-select'
@@ -123,6 +154,10 @@ import { genImg } from '@components/id-card/js'
 import { areaList } from '@config/area'
 import { firstNames, lastCodeArr, lastNames, monthBig, monthLeap, monthNoLeap, monthSmall, prefixArr } from '@config'
 import { DateUtil } from 'sn-js-utils'
+import { chooseImage } from '@utils/choose-file/choose-image'
+import { globalProperties } from '@utils/globalProperties'
+import { Plus } from '@element-plus/icons-vue'
+import defaultAvatar from '@components/id-card/assets/avatar.png'
 
 const {
   // eslint-disable-next-line camelcase
@@ -133,8 +168,7 @@ const {
   county_list,
 } = areaList
 
-const internalInstance = getCurrentInstance()
-const globalProperties = internalInstance.appContext.config.globalProperties
+const { global } = globalProperties()
 const genderObj = {
   male: 'male',
   female: 'female',
@@ -149,12 +183,8 @@ const countRef = ref(null)
 const resultData = ref([])
 const idCardDialogVisible = ref(false)
 const switchName = ref(false)
-const extra = reactive({
-  cardAddressDetail: '',
-  cardDepartment: '',
-  cardPeriodFront: '',
-  cardPeriodEnd: '',
-})
+const avatarVisible = ref(false)
+const avatarImgUrlId = ref(-1)
 const areaAddress = reactive({
   code: '',
   text: '',
@@ -168,6 +198,10 @@ const uniqueAgeRangeEndVal = ref('')
 const tableData = computed(() => {
   const tempData = JSON.parse(JSON.stringify(resultData.value))
   return tempData.slice((currentPage.value - 1) * pageSize.value, (currentPage.value) * pageSize.value)
+})
+
+const curAvatar = computed(() => {
+  return (tableData.value[avatarImgUrlId.value - 1] || '').avatar || defaultAvatar
 })
 // watch
 watch(areaAddress, () => {
@@ -510,7 +544,7 @@ const genResultData = () => {
         resultData.value = getCardNoList([countryVal, birthdayVal, genderVal, countVal])
       }
     } catch (e) {
-      globalProperties.$message.warning(e.message)
+      global.$message.warning(e.message)
       genDataLoading.value = false
       return
     }
@@ -520,9 +554,9 @@ const genResultData = () => {
 // 复制身份证号
 const copyCardNo = (cardNo) => {
   if (clipboard(cardNo)) {
-    globalProperties.$message.success('复制成功')
+    global.$message.success('复制成功')
   } else {
-    globalProperties.$message.error('复制失败')
+    global.$message.error('复制失败')
   }
 }
 // 生成身份证图片
@@ -535,19 +569,31 @@ const genIdCardPicture = (data) => {
   idCardDialogVisible.value = true
   const birthday = data?.cardNo.slice(6, 14)
   const config = {
-    // avatar: '', 废弃
+    avatar: data.avatar || defaultAvatar,
     name: data.name,
     cardNo: data.cardNo,
     gender: gender === genderObj.male ? '男' : '女',
     nation: '汉',
-    address: areaAddress.text + (extra.cardAddressDetail || '江场三路288号'),
-    issuingAuthority: extra.cardDepartment || '上海市公安局静安分局',
-    validityStart: extra.cardPeriodFront || `${birthday.slice(0, 4)}/${birthday.slice(4, 6)}/${birthday.slice(6, 8)}`,
-    validityEnd: extra.cardPeriodEnd || '长期',
+    address: areaAddress.text + (data.cardAddressDetail || '江场三路288号'),
+    issuingAuthority: data.cardDepartment || '上海市公安局静安分局',
+    validityStart: data.cardPeriodFront || `${birthday.slice(0, 4)}/${birthday.slice(4, 6)}/${birthday.slice(6, 8)}`,
+    validityEnd: data.cardPeriodEnd || '长期',
   }
   setTimeout(() => {
     genImg(config)
   }, 10)
+}
+const changeAvatarImg = (id) => {
+  avatarVisible.value = true
+  avatarImgUrlId.value = id
+}
+const uploadAvatar = () => {
+  chooseImage().then(files => {
+    const [file] = files
+    resultData.value[avatarImgUrlId.value - 1].avatar = file.url
+    avatarVisible.value = false
+    global.$message.success('上传图片成功')
+  })
 }
 const clearResultData = (e) => {
   resultData.value = []
@@ -559,7 +605,7 @@ const changeCurrentPage = (e) => {
 </script>
 
 <style scoped lang="scss">
-@import "~@components/id-card/build_fonts/hei/hei.css";
+//@import "~@components/id-card/build_fonts/hei/hei.css";
 @import "~@components/id-card/build_fonts/fzzdxjw-gb1-0/fzzdxjw-gb1-0.css";
 @import "~@components/id-card/build_fonts/ocrb10bt/ocrb10bt.css";
 
@@ -572,6 +618,7 @@ const changeCurrentPage = (e) => {
   .title {
     width: 100%;
     text-align: center;
+    letter-spacing: 1px;
     font-family: 'ocrb10bt';
   }
 
@@ -631,15 +678,20 @@ const changeCurrentPage = (e) => {
       margin: 0 auto;
       color: #333333;
 
-      ::v-deep(.table-th) {
+      :deep(.table-th) {
         color: #333333;
         font-family: 'STXihei';
       }
 
       .modify-name.is-disabled {
-        ::v-deep(.el-input__inner) {
-          border: unset;
+        cursor: default;
+
+        :deep(.el-input__wrapper) {
+          box-shadow: unset;
           background-color: #FFFFFF;
+        }
+
+        :deep(.el-input__inner) {
           color: #606266;
           cursor: default;
         }
@@ -659,7 +711,7 @@ const changeCurrentPage = (e) => {
     .extra-period {
       display: flex;
 
-      ::v-deep(.el-input) {
+      :deep(.el-input) {
         margin-right: 5px;
 
         &:last-child {
@@ -673,5 +725,37 @@ const changeCurrentPage = (e) => {
 .idCardImg {
   width: 100%;
   height: 100%;
+}
+
+.avatar-uploader {
+  display: flex;
+  justify-content: center;
+
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+
+  .el-upload {
+    border: 1px dashed var(--el-border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: var(--el-transition-duration-fast);
+
+    &:hover {
+      border-color: var(--el-color-primary);
+    }
+  }
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100%;
+  height: 100%;
+  text-align: center;
 }
 </style>
