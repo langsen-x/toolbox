@@ -1,6 +1,7 @@
 const fs = require('fs')
+const path = require('path')
 const name = 'area.json'
-const path = `./src/config/${name}`
+const jsonPath = path.join(__dirname, `./${name}`)
 const { areaList } = require('./area')
 const {
   // eslint-disable-next-line camelcase
@@ -92,7 +93,7 @@ function writeFile(path, data, callback) {
   })
 }
 
-writeFile(path, JSON.stringify(address), (obj) => {
+writeFile(jsonPath, JSON.stringify(address), (obj) => {
   if (obj.result) {
     console.log('数据写入成功！')
   } else {

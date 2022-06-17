@@ -35,7 +35,7 @@
 
 <script>
 import { onBeforeMount, ref } from 'vue'
-import { dayList, monthLeap, monthNoLeap } from '@config'
+import { dayList, monthLeap, monthNoLeap } from '@config/idCard'
 
 export default {
   name: 'birthday-select',

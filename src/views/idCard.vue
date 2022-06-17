@@ -42,11 +42,11 @@
           </el-button>
         </div>
       </div>
-      <div class="result">
+      <div id="id-card-list" class="result">
         <el-pagination background layout="prev, pager, next" :total="resultData.length" :current-page="currentPage"
                        :page-size="pageSize" @current-change="changeCurrentPage"/>
         <el-table :data="tableData" border style="width: 1000px" header-cell-class-name="table-th" empty-text="暂无数据"
-                  v-loading="genDataLoading">
+                  v-loading="tableLoading">
           <el-table-column prop="idx" label="序号" width="60"/>
           <el-table-column prop="name" label="姓名" width="130">
             <template #header>
@@ -60,12 +60,16 @@
             </template>
           </el-table-column>
           <el-table-column prop="age" label="年龄" width="70"></el-table-column>
-          <el-table-column prop="cardNo" label="身份证号">
+          <el-table-column prop="cardNo" label="身份证号" min-width="230">
             <template #default="scope">
-              <p class="cardNo-p">{{ scope.row.cardNo }}</p>
+              <p class="cardNo-p">
+                <span>{{ (scope.row.cardNo + '').slice(0, 6) }}&nbsp;</span>
+                <span>{{ (scope.row.cardNo + '').slice(6, 14) }}&nbsp;</span>
+                <span>{{ (scope.row.cardNo + '').slice(14, 18) }}</span>
+              </p>
             </template>
           </el-table-column>
-          <el-table-column label="其他" width="380">
+          <el-table-column label="其他" min-width="300" v-if="switchExtra">
             <template #default="scope">
               <el-input class="extra-card" v-model="scope.row.cardAddressDetail" placeholder="详细地址" clearable
                         maxlength="20"/>
@@ -83,31 +87,32 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="130">
+          <el-table-column label="操作" width="200">
             <template #default="scope">
-              <el-button
-                text
-                type="primary"
-                @click="copyCardNo(scope.row.cardNo)"
-              >
-                复制
-              </el-button>
-              <el-button
-                style="margin-left: unset !important;"
-                text
-                type="primary"
-                @click="genIdCardPicture(scope.row)"
-              >
-                生成图片
-              </el-button>
-              <el-button
-                style="margin-left: unset !important;"
-                text
-                type="primary"
-                @click="changeAvatarImg(scope.row.idx)"
-              >
-                更换头像
-              </el-button>
+              <div class="operation-col">
+                <el-button
+                  text
+                  type="primary"
+                  @click="copyCardNo(scope.row.cardNo)">复制
+                </el-button>
+                <el-button
+                  text
+                  type="primary"
+                  @click="genIdCardPicture(scope.row)">生成图片
+                </el-button>
+                <el-button
+                  style="margin-left: unset;"
+                  text
+                  type="primary"
+                  @click="changeAvatarImg(scope.row.idx)">更换头像
+                </el-button>
+                <el-button
+                  text
+                  type="primary"
+                  @click="operateExtra">
+                  {{ switchExtra ? '关闭其他' : '开启其他' }}
+                </el-button>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -144,15 +149,15 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, nextTick, reactive, ref, watch } from 'vue'
 import AreaSelect from '@components/id-card/area-select'
 import BirthdaySelect from '@components/id-card/birthday-select'
 import GenderSelect from '@components/id-card/gender-select'
 import CountSelect from '@components/id-card/count-select'
 import clipboard from 'copy-text-to-clipboard'
 import { genImg } from '@components/id-card/js'
-import { areaList } from '@config/area'
-import { firstNames, lastCodeArr, lastNames, monthBig, monthLeap, monthNoLeap, monthSmall, prefixArr } from '@config'
+import { areaList } from '@assets/data/area'
+import { firstNames, lastCodeArr, lastNames, monthBig, monthLeap, monthNoLeap, monthSmall, prefixArr } from '@config/idCard'
 import { DateUtil } from 'sn-js-utils'
 import { chooseImage } from '@utils/choose-file/choose-image'
 import { globalProperties } from '@utils/globalProperties'
@@ -176,6 +181,7 @@ const genderObj = {
 const currentPage = ref(1)
 const pageSize = ref(10)
 const genDataLoading = ref(false)
+const tableLoading = ref(false)
 const areaRef = ref(null)
 const birthdayRef = ref(null)
 const genderRef = ref(null)
@@ -183,6 +189,7 @@ const countRef = ref(null)
 const resultData = ref([])
 const idCardDialogVisible = ref(false)
 const switchName = ref(false)
+const switchExtra = ref(false)
 const avatarVisible = ref(false)
 const avatarImgUrlId = ref(-1)
 const areaAddress = reactive({
@@ -511,6 +518,7 @@ const _checkUniqueAgeRange = (ageStart, ageEnd) => {
 // 生成表格数据
 const genResultData = () => {
   genDataLoading.value = true
+  tableLoading.value = true
   setTimeout(() => {
     const { countryVal } = areaRef.value
     const {
@@ -546,9 +554,17 @@ const genResultData = () => {
     } catch (e) {
       global.$message.warning(e.message)
       genDataLoading.value = false
+      tableLoading.value = false
       return
     }
     genDataLoading.value = false
+    tableLoading.value = false
+    nextTick(() => {
+      document.getElementById('id-card-list').scrollIntoView({
+        block: 'start',
+        behavior: 'smooth',
+      })
+    })
   }, 100)
 }
 // 复制身份证号
@@ -595,6 +611,13 @@ const uploadAvatar = () => {
     global.$message.success('上传图片成功')
   })
 }
+const operateExtra = () => {
+  tableLoading.value = true
+  setTimeout(() => {
+    switchExtra.value = !switchExtra.value
+    tableLoading.value = false
+  }, 100)
+}
 const clearResultData = (e) => {
   resultData.value = []
   areaAddress.code = e
@@ -612,7 +635,7 @@ const changeCurrentPage = (e) => {
 .idCard-content {
   width: 1200px;
   margin: 0 auto 30px;
-  padding: 30px 0;
+  padding: 30px 0 80px;
   box-sizing: border-box;
 
   .title {
@@ -701,6 +724,16 @@ const changeCurrentPage = (e) => {
         font-weight: bold;
         letter-spacing: 1px;
         font-size: 16px;
+      }
+    }
+
+    .operation-col {
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: space-between;
+
+      .el-button + .el-button {
+        margin-left: unset;
       }
     }
 

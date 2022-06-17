@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import areaData from '@config/area.json'
+import areaData from '@assets/data/area.json'
 import { computed, onBeforeMount, ref, watch } from 'vue'
 
 export default {
