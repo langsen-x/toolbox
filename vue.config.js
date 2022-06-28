@@ -1,4 +1,5 @@
 const path = require('path')
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 function resolve(dir) {
   return path.resolve(__dirname, dir)
@@ -11,6 +12,7 @@ module.exports = {
   productionSourceMap: process.env.NODE_ENV !== 'production',
 
   chainWebpack: (config) => {
+    config.plugin('monaco').use(new MonacoWebpackPlugin())
     config.resolve.alias
       .set('@module', resolve('src/module'))
       .set('@config', resolve('src/config'))

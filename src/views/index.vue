@@ -3,7 +3,7 @@
     <div class="index-content">
       <div class="card-group">
         <div class="card-group__item point" v-for="tool in toolRoutes" :key="tool.name"
-             @click="goToIdCard">
+             @click="goToTool(tool.path)">
           <p class="single-line">{{ tool.meta.title }}</p>
         </div>
         <div class="card-group__item point" v-for="i in itemNum" :key="i" @click="addItem">
@@ -14,39 +14,28 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import toolRoutes from '@/router/tool'
-import { getCurrentInstance, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
+import { globalProperties } from '@utils/globalProperties'
 
-export default {
-  name: 'Index',
-  setup(props, context) {
-    const internalInstance = getCurrentInstance()
-    const globalProperties = internalInstance.appContext.config.globalProperties
-    // data
-    const itemNum = ref(1)
-    // watch
-    watch(itemNum, (newValue, oldValue) => {
-      console.log('The old itemNum value is: ' + oldValue)
-      console.log('The new itemNum value is: ' + newValue)
-    })
-    // methods
-    const goToIdCard = () => {
-      globalProperties.$router.push({
-        path: '/idCard',
-      })
-    }
-    const addItem = () => {
-      itemNum.value++
-      globalProperties.$logGlobal(itemNum.value)
-    }
-    return {
-      itemNum,
-      toolRoutes,
-      goToIdCard,
-      addItem,
-    }
-  },
+const { global } = globalProperties()
+// data
+const itemNum = ref(1)
+// watch
+watch(itemNum, (newValue, oldValue) => {
+  console.log('The old itemNum value is: ' + oldValue)
+  console.log('The new itemNum value is: ' + newValue)
+})
+// methods
+const goToTool = (path) => {
+  global.$router.push({
+    path,
+  })
+}
+const addItem = () => {
+  itemNum.value++
+  global.$logGlobal(itemNum.value)
 }
 </script>
 
