@@ -3,7 +3,7 @@
     <div class="fl-row jsRun-content">
       <div class="fl-col editor-panel">
         <div class="action-bar">
-          <el-button @click="lookDocument">文档</el-button>
+<!--          <el-button @click="lookDocument">文档</el-button>-->
           <el-button @click="lookDemo(demo)">查看示例</el-button>
           <el-button @click="clearCode">清空代码</el-button>
           <el-button type="primary" @click="runStrToHtml">运行</el-button>
@@ -24,7 +24,7 @@
 <script setup>
 import MonacoEditor from '@components/MonacoEditor'
 import { useCommonJsRun } from '@/hooks/useCommonJsRun'
-import { demo, revertStrToHtml } from '@utils/strToHtml'
+import { demo, revertStrToHtml } from '@utils/tool/strToHtml'
 
 const {
   global,
@@ -37,9 +37,9 @@ const {
   copyConsole,
 } = useCommonJsRun()
 
-const lookDocument = () => {
-
-}
+// const lookDocument = () => {
+//
+// }
 
 const runStrToHtml = () => {
   try {

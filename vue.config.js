@@ -14,16 +14,14 @@ module.exports = {
   chainWebpack: (config) => {
     config.plugin('monaco').use(new MonacoWebpackPlugin())
     config.resolve.alias
-      .set('@module', resolve('src/module'))
-      .set('@config', resolve('src/config'))
-      .set('@components', resolve('src/components'))
-      .set('@api', resolve('src/service/api'))
-      .set('@status', resolve('src/service/status'))
-      .set('@utils', resolve('src/utils'))
       .set('@assets', resolve('src/assets'))
-      .set('@service', resolve('src/service'))
+      .set('@components', resolve('src/components'))
+      .set('@config', resolve('src/config'))
+      .set('@module', resolve('src/module'))
+      .set('@hooks', resolve('src/hooks'))
+      .set('@styles', resolve('src/styles'))
+      .set('@utils', resolve('src/utils'))
       .set('@views', resolve('src/views'))
-      .set('@mixins', resolve('src/mixins'))
 
     const oneOfsMap = config.module.rule('scss').oneOfs.store
     oneOfsMap.forEach(item => {

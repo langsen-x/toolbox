@@ -1,9 +1,0 @@
-@font-face {
-    font-family: 'ocrb10bt';
-    src: url('ocrb10bt.eot'); /* 兼容IE9 */
-    src: url('ocrb10bt.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-        url('ocrb10bt.woff2') format('woff2'), /* 最新浏览器 */
-        url('ocrb10bt.woff') format('woff'), /* 较新浏览器 */
-        url('ocrb10bt.ttf')  format('truetype'), /* Safari、Android、iOS */
-        url('ocrb10bt.svg#svgFontName') format('svg'); /* 早期iOS */
-}

@@ -12,17 +12,17 @@ const fontCarrier = require('font-carrier')
 
 /* ======================= 配置 ======================= */
 // 源字体路径
-// const originFontFile = '../src/components/id-card/fonts/fzzdxjw-gb1-0.ttf'
-const originFontFile = '../src/components/id-card/fonts/hei.ttf'
-// const originFontFile = '../src/components/id-card/fonts/ocrb10bt.ttf'
+// const originFontFile = '../src/views/idCard/_fonts/fzzdxjw-gb1-0.ttf'
+const originFontFile = '../src/views/idCard/_fonts/hei.ttf'
+// const originFontFile = '../src/views/idCard/_fonts/ocrb10bt.ttf'
 
 // 提取的文字
 // const text = '1234567890'
 
 // 输出的字体路径
-// const outputFontFile = '../src/components/id-card/build_fonts/fzzdxjw-gb1-0'
-const outputFontFile = '../src/components/id-card/build_fonts/hei'
-// const outputFontFile = '../src/components/id-card/build_fonts/ocrb10bt'
+// const outputFontFile = '../src/views/idCard/_buildFonts/fzzdxjw-gb1-0'
+const outputFontFile = '../src/views/idCard/_buildFonts/hei'
+// const outputFontFile = '../src/views/idCard/_buildFonts/ocrb10bt'
 
 // 输出的字体Family
 // const fontFamily = 'fzzdxjw-gb1-0'

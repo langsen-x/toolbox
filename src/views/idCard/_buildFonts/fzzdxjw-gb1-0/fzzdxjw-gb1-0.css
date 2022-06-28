@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'fzzdxjw-gb1-0';
+    src: url('fzzdxjw-gb1-0.eot'); /* 兼容IE9 */
+    src: url('fzzdxjw-gb1-0.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+        url('fzzdxjw-gb1-0.woff2') format('woff2'), /* 最新浏览器 */
+        url('fzzdxjw-gb1-0.woff') format('woff'), /* 较新浏览器 */
+        url('fzzdxjw-gb1-0.ttf')  format('truetype'), /* Safari、Android、iOS */
+        url('fzzdxjw-gb1-0.svg#svgFontName') format('svg'); /* 早期iOS */
+}

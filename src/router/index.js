@@ -9,7 +9,7 @@ const routes = [
   {
     path: '/index',
     name: 'Index',
-    component: () => import(/* webpackChunkName: "index" */ '@views/index.vue'),
+    component: () => import(/* webpackChunkName: "index" */ '@views/index'),
     meta: {
       keepAlive: true,
     },
