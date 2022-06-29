@@ -37,14 +37,16 @@
             <p class="select__row-p">个数：</p>
             <CountSelect ref="countRef" @clear="clearResultData"></CountSelect>
           </div>
-          <el-button style="margin-left: 20px" type="primary" round size="large"
-                     :loading="genDataLoading" @click="genResultData">生成
-          </el-button>
         </div>
       </div>
       <div id="id-card-list" class="result">
-        <el-pagination background layout="prev, pager, next" :total="resultData.length" :current-page="currentPage"
-                       :page-size="pageSize" @current-change="changeCurrentPage"/>
+        <div class="result-top">
+          <el-pagination background layout="prev, pager, next" :total="resultData.length" :current-page="currentPage"
+                         :page-size="pageSize" @current-change="changeCurrentPage"/>
+          <el-button type="primary" round size="large"
+                     :loading="genDataLoading" @click="genResultData">生成
+          </el-button>
+        </div>
         <el-table :data="tableData" border style="width: 1000px" header-cell-class-name="table-th" empty-text="暂无数据"
                   v-loading="tableLoading">
           <el-table-column prop="idx" label="序号" width="60"/>
@@ -157,7 +159,16 @@ import CountSelect from './_components/CountSelect'
 import clipboard from 'copy-text-to-clipboard'
 import { genImg } from '@utils/tool/idCard'
 import { areaList } from '@assets/data/area'
-import { firstNames, lastCodeArr, lastNames, monthBig, monthLeap, monthNoLeap, monthSmall, prefixArr } from '@config/idCard'
+import {
+  firstNames,
+  lastCodeArr,
+  lastNames,
+  monthBig,
+  monthLeap,
+  monthNoLeap,
+  monthSmall,
+  prefixArr,
+} from '@config/idCard'
 import { DateUtil } from 'sn-js-utils'
 import { chooseImage } from '@utils/choose-file/choose-image'
 import { globalProperties } from '@utils/globalProperties'
@@ -354,7 +365,7 @@ const getCardNoList = (obj) => {
   return cardNoList
 }
 // 得到可以选择的天数
-const getDateDayList = (year, month, type, day) => {
+const getDateDayList = (year, month, day, type) => {
   // 条件:能被4整除并且不能被100整除，或者被400整除的
   if ([1, 3, 5, 7, 8, 10, 12].includes(month)) {
     if (day) {
@@ -465,11 +476,11 @@ const getDateDiffList = (ageDiff, obj) => {
   const cardNoList = []
   for (let i = 0; i < count; i++) {
     const randomYear = yearList[randomAccess(0, yearList.length)]
-    const obj = dateObjList.find(i => i.yearList.includes(randomYear))
-    const randomMonth = obj.monthList[randomAccess(0, obj.monthList.length)]
+    const dtObj = dateObjList.find(i => i.yearList.includes(randomYear))
+    const randomMonth = dtObj.monthList[randomAccess(0, dtObj.monthList.length)]
     let randomDayList
-    if (randomMonth === beforeMonth && [diffStartYear, diffEndYear].includes(randomYear)) {
-      randomDayList = getDateDayList(randomYear, randomMonth, obj.type, beforeDay)
+    if (randomMonth === dtObj.month) {
+      randomDayList = getDateDayList(randomYear, randomMonth, dtObj.day, dtObj.type)
     } else {
       randomDayList = getDateDayList(randomYear, randomMonth)
     }
@@ -635,7 +646,7 @@ const changeCurrentPage = (e) => {
 .idCard-content {
   width: 1200px;
   margin: 0 auto 30px;
-  padding: 30px 0 80px;
+  padding: 30px 0;
   box-sizing: border-box;
 
   .title {
@@ -687,19 +698,24 @@ const changeCurrentPage = (e) => {
   }
 
   .result {
+    width: 1000px;
+    margin: -10px auto 0;
     font-family: 'fzzdxjw-gb1-0';
 
-    .el-pagination {
+    .result-top {
       display: flex;
-      justify-content: flex-end;
-      width: 1000px;
-      margin: 20px auto 0;
-      padding-bottom: 20px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
     }
 
     .el-table {
       margin: 0 auto;
       color: #333333;
+
+      :deep(.el-table__cell) {
+        padding: 7px 0;
+      }
 
       :deep(.table-th) {
         color: #333333;
