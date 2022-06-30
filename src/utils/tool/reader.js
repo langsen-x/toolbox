@@ -1,6 +1,6 @@
-const axios = require('axios')
+import axios from 'axios'
 
 export function readSourceCode(sourcePath) {
-  const codePath = `/source/${sourcePath}.txt`
+  const codePath = `./sourceCode/${sourcePath}.rtf`
   return axios.get(codePath)
 }
