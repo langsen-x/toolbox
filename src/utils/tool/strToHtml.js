@@ -104,3 +104,40 @@ export const demo = '[\n' +
   '        highlightSlot: \'<span class="tip">__body__</span>\',\n' +
   '    },\n' +
   ']'
+
+export const docContent = [
+  {
+    label: '需求',
+    value: '' +
+      '在项目中，经常会遇到一段长字符串个别字符需要高亮显示；\n' +
+      '而后台数据仅仅是返回字符串，当然后台也可实现返回html代码直接使用v-html渲染到页面；\n' +
+      '不过这样不够灵活性，如果高亮显示的字符需要不同的css，仍需要后台改代码；\n' +
+      '为了实现这样的需求，并且具有灵活性，做了这个小工具。\n\n' +
+      '字段解释\n' +
+      'handleStr：需要处理的字符串\n' +
+      'regArr：正则匹配数组\n' +
+      'strSlot：字符串css插槽\n' +
+      'highlightSlot：高亮字符css插槽',
+  },
+  {
+    label: '流程',
+    value: '' +
+      '仅需要在代码面板上按照示例配置好json，点击运行。就可以得到处理之后的html代码。\n' +
+      '怎么实现高亮字符不同的样式？\n' +
+      '示例highlightSlot指定相同的class，但是可以通过父元素strSlot的class指定nth-of-type实现不同高亮效果',
+  },
+  {
+    label: '思路',
+    value: '' +
+      '1. 根据需要高亮的字符使用用正则匹配出 matchArr；\n' +
+      '2. 从字符串中循环 matchArr 数组找出字符出现的索引（可能会有相同字符，索引不一样）\n' +
+      '2.1 相同字符索引根据 indexOf 和 lastIndexOf 全部找出，然后去重，排序，生成一个待高亮字符索引数组 idxArr\n' +
+      '2.2 然后按照长度为2的方式两两分割 idxArr 数组，得到待高亮字符索引的数组 boldStrArr\n' +
+      '3. idxArr 数组 unshift 索引0，push 索引数组的长度索引，再次去重\n' +
+      '4. 然后按照长度为2的方式左右分割 idxArr 数组，得到包含待高亮字符索引的数组 allStrArr\n' +
+      '5. allStrArr 数组和 boldStrArr 数组循环生成 typeData 数组，type为 bold 是待高亮字符\n' +
+      '6. typeData 对数组循环放入 highlightSlot 和 strSlot 中，得到 html 代码',
+  },
+]
+
+export const sourceCodePath = 'strToHtml'

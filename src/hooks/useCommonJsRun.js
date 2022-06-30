@@ -13,6 +13,19 @@ export const useCommonJsRun = () => {
     logValue.value += arg + '\n\n'
   }
 
+  const sourceCode = ref('')
+  const sourceDrawer = ref(false)
+  const randomValid = ref(false)
+  const documentDrawer = ref(false)
+
+  const lookSourceCode = () => {
+    randomValid.value = true
+  }
+
+  const lookDocument = () => {
+    documentDrawer.value = true
+  }
+
   const clearCode = () => {
     const {
       setCodeContent,
@@ -44,6 +57,12 @@ export const useCommonJsRun = () => {
     editorBox,
     logValue,
     logger,
+    sourceCode,
+    sourceDrawer,
+    randomValid,
+    documentDrawer,
+    lookSourceCode,
+    lookDocument,
     clearCode,
     lookDemo,
     clearConsole,

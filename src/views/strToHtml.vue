@@ -3,7 +3,8 @@
     <div class="fl-row jsRun-content">
       <div class="fl-col editor-panel">
         <div class="action-bar">
-<!--          <el-button @click="lookDocument">文档</el-button>-->
+          <el-button @click="lookSourceCode">源码</el-button>
+          <el-button @click="lookDocument">文档</el-button>
           <el-button @click="lookDemo(demo)">查看示例</el-button>
           <el-button @click="clearCode">清空代码</el-button>
           <el-button type="primary" @click="runStrToHtml">运行</el-button>
@@ -18,28 +19,86 @@
         <el-input type="textarea" class="console-input" readonly v-model="logValue"></el-input>
       </div>
     </div>
+
+    <CommonDrawer v-model:show="documentDrawer" title="需求&流程&思路">
+      <template #content>
+        <div class="document-content" v-for="(doc, idx) in docContent" :key="idx">
+          <p class="c-title">{{ doc.label }}</p>
+          <p class="c-p">{{ doc.value }}</p>
+        </div>
+      </template>
+    </CommonDrawer>
+
+    <CommonDrawer v-model:show="sourceDrawer" :close-on-modal="false" title="源码">
+      <template #content>
+        <el-input type="textarea" class="source-textarea" v-model="sourceCode" readonly></el-input>
+      </template>
+    </CommonDrawer>
+
+    <CommonDialog v-model:show="randomValid" title="随机验证" @close="closeValid" @confirm="checkAnswerRight">
+      <template #content>
+        <div class="valid-content">
+          <p style="margin-bottom: 10px;">{{ qa.question }}</p>
+          <el-input v-model="qa.curAnswer"></el-input>
+        </div>
+      </template>
+    </CommonDialog>
   </div>
 </template>
 
 <script setup>
+import { watch } from 'vue'
 import MonacoEditor from '@components/MonacoEditor'
+import CommonDrawer from '@components/CommonDrawer'
+import CommonDialog from '@components/CommonDialog'
 import { useCommonJsRun } from '@/hooks/useCommonJsRun'
-import { demo, revertStrToHtml } from '@utils/tool/strToHtml'
+import { useValid } from '@/hooks/useValid'
+import { demo, docContent, revertStrToHtml, sourceCodePath } from '@utils/tool/strToHtml'
+import { readSourceCode } from '@utils/tool/reader'
 
 const {
   global,
   editorBox,
   logValue,
   logger,
+  sourceCode,
+  sourceDrawer,
+  randomValid,
+  documentDrawer,
+  lookSourceCode,
+  lookDocument,
   clearCode,
   lookDemo,
   clearConsole,
   copyConsole,
 } = useCommonJsRun()
 
-// const lookDocument = () => {
-//
-// }
+const {
+  qa,
+  randomQa,
+  closeValid,
+  validAnswer,
+} = useValid()
+
+watch(randomValid, (newVal) => {
+  if (newVal) {
+    randomQa()
+  }
+})
+
+const checkAnswerRight = () => {
+  if (validAnswer(qa.answer, qa.curAnswer)) {
+    randomValid.value = false
+    readSourceCode(sourceCodePath).then(res => {
+      sourceCode.value = res.data
+      sourceDrawer.value = true
+    })
+  } else {
+    global.$message.success('验证不通过')
+    randomQa()
+  }
+  closeValid()
+}
 
 const runStrToHtml = () => {
   try {
@@ -65,4 +124,44 @@ const runStrToHtml = () => {
 
 <style scoped lang="scss">
 @import "../styles/js-run";
+
+.document-content {
+  &:nth-of-type(1) {
+    .c-title {
+      color: red;
+    }
+  }
+
+  &:nth-of-type(2) {
+    .c-title {
+      color: green;
+    }
+  }
+
+  &:nth-of-type(3) {
+    .c-title {
+      color: blue;
+    }
+  }
+
+  .c-title {
+    font-size: 20px;
+    line-height: 20px;
+    margin-bottom: 10px;
+  }
+
+  .c-p {
+    line-height: 24px;
+    margin-bottom: 30px;
+    white-space: pre-wrap;
+  }
+}
+
+.source-textarea {
+  height: 100%;
+
+  ::v-deep(.el-textarea__inner) {
+    height: 100%;
+  }
+}
 </style>
