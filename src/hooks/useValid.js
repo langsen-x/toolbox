@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { randomAccess } from '@utils'
 import { SM4encCode } from '@utils/aesutil'
 import md5 from 'js-md5'
@@ -53,10 +53,18 @@ export const useValid = () => {
     qa.curAnswer = ''
   }
 
+  const validDialog = ref(null)
+  const triggerClick = () => {
+    const { returnConfirmBtn } = validDialog.value
+    returnConfirmBtn().click()
+  }
+
   return {
     qa,
     randomQa,
     closeValid,
     validAnswer,
+    validDialog,
+    triggerClick,
   }
 }

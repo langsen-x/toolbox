@@ -35,11 +35,11 @@
       </template>
     </CommonDrawer>
 
-    <CommonDialog v-model:show="randomValid" title="随机验证" @close="closeValid" @confirm="checkAnswerRight">
+    <CommonDialog ref="validDialog" v-model:show="randomValid" title="随机验证" @close="closeValid" @confirm="checkAnswerRight">
       <template #content>
         <div class="valid-content">
           <p style="margin-bottom: 10px;">{{ qa.question }}</p>
-          <el-input v-model="qa.curAnswer"></el-input>
+          <el-input v-model="qa.curAnswer" @keyup.enter="triggerClick"></el-input>
         </div>
       </template>
     </CommonDialog>
@@ -78,6 +78,8 @@ const {
   randomQa,
   closeValid,
   validAnswer,
+  validDialog,
+  triggerClick,
 } = useValid()
 
 watch(randomValid, (newVal) => {

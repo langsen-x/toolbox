@@ -12,7 +12,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="closeDialog">取消</el-button>
-        <el-button type="primary" @click="confirmDialog">确认</el-button>
+        <el-button type="primary" id="confirmBtn" @click="confirmDialog">确认</el-button>
       </span>
     </template>
   </el-dialog>
@@ -42,6 +42,15 @@ const closeDialog = () => {
 const confirmDialog = () => {
   emits('confirm')
 }
+
+const returnConfirmBtn = () => {
+  return document.getElementById('confirmBtn')
+}
+
+// eslint-disable-next-line no-undef
+defineExpose({
+  returnConfirmBtn,
+})
 </script>
 
 <style scoped lang="scss">
