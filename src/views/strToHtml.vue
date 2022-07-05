@@ -60,7 +60,6 @@ const {
   global,
   editorBox,
   logValue,
-  logger,
   sourceCode,
   sourceDrawer,
   randomValid,
@@ -96,7 +95,7 @@ const checkAnswerRight = () => {
       sourceDrawer.value = true
     })
   } else {
-    global.$message.success('验证不通过')
+    global.$message.warning('验证不通过')
     randomQa()
   }
   closeValid()
@@ -110,7 +109,7 @@ const runStrToHtml = () => {
     const runCode = getCodeContent()
     if (runCode) {
       logValue.value = ''
-      logger('执行代码!')
+      console.log('执行代码!')
       // eslint-disable-next-line no-eval
       revertStrToHtml(eval(runCode))
     } else {
@@ -126,44 +125,6 @@ const runStrToHtml = () => {
 
 <style scoped lang="scss">
 @import "../styles/js-run";
-
-.document-content {
-  &:nth-of-type(1) {
-    .c-title {
-      color: red;
-    }
-  }
-
-  &:nth-of-type(2) {
-    .c-title {
-      color: green;
-    }
-  }
-
-  &:nth-of-type(3) {
-    .c-title {
-      color: blue;
-    }
-  }
-
-  .c-title {
-    font-size: 20px;
-    line-height: 20px;
-    margin-bottom: 10px;
-  }
-
-  .c-p {
-    line-height: 24px;
-    margin-bottom: 30px;
-    white-space: pre-wrap;
-  }
-}
-
-.source-textarea {
-  height: 100%;
-
-  ::v-deep(.el-textarea__inner) {
-    height: 100%;
-  }
-}
+@import "../styles/js-document";
+@import "../styles/js-source";
 </style>

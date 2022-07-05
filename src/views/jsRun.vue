@@ -28,7 +28,6 @@ const {
   global,
   editorBox,
   logValue,
-  logger,
   clearCode,
   clearConsole,
   copyConsole,
@@ -52,7 +51,7 @@ const runEditorCode = () => {
     const runCode = getCodeContent()
     if (runCode) {
       logValue.value = ''
-      logger('执行代码!')
+      console.log('执行代码!')
       // eslint-disable-next-line no-new-func
       const runFn = new Function(runCode)
       runFn()

@@ -1,0 +1,7 @@
+.source-textarea {
+  height: 100%;
+
+  ::v-deep(.el-textarea__inner) {
+    height: 100%;
+  }
+}

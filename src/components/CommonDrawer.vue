@@ -7,6 +7,7 @@
     @close="closeDrawer">
     <template #header="{ close, titleId, titleClass }">
       <h4 v-if="title" :id="titleId" :class="titleClass">{{ title }}</h4>
+      <slot name="header"/>
       <el-button @click="close">关闭</el-button>
     </template>
     <slot name="content"/>

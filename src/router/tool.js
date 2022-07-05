@@ -23,4 +23,12 @@ export default [
       title: '字符串提取转html',
     },
   },
+  {
+    path: '/excelToJson',
+    name: 'ExcelToJson',
+    component: () => import(/* webpackChunkName: "tool" */ '@views/excelToJson.vue'),
+    meta: {
+      title: 'excel转json',
+    },
+  },
 ]

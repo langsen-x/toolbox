@@ -8,9 +8,13 @@ export const useCommonJsRun = () => {
   const logValue = ref('')
 
   const logger = console.log
-  console.log = function(arg) {
-    logger(arg)
-    logValue.value += arg + '\n\n'
+  console.log = function(text = '', arg) {
+    if (arg) {
+      logger(text, arg)
+      logValue.value += arg + '\n\n'
+    } else {
+      logger(text)
+    }
   }
 
   const sourceCode = ref('')

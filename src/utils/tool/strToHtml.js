@@ -66,7 +66,7 @@ function getHtml(strRegItem) {
   } else {
     strDiv = strHtml
   }
-  console.log(strDiv)
+  console.log('strDiv:', strDiv)
 
   function splitArray(arr, size = 2) {
     const result = []
