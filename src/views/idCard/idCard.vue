@@ -2,6 +2,7 @@
   <div class="page">
     <div class="idCard-content">
       <h1 class="title">身份证在线生成器</h1>
+      <p style="font-size: 12px;text-align: center;">（仅为个人代码学习，请勿用于不良、违法犯罪等行为）</p>
       <div class="select">
         <div class="select__row">
           <p class="select__row-p">省市区：</p>
@@ -39,7 +40,7 @@
           </div>
         </div>
       </div>
-      <div id="id-card-list" class="result">
+      <div id="id-card-list" class="result" :class="switchExtra ? 'large-result' : 'medium-result'">
         <div class="result-top">
           <el-pagination background layout="prev, pager, next" :total="resultData.length" :current-page="currentPage"
                          :page-size="pageSize" @current-change="changeCurrentPage"/>
@@ -47,8 +48,7 @@
                      :loading="genDataLoading" @click="genResultData">生成
           </el-button>
         </div>
-        <el-table :data="tableData" border style="width: 1000px" header-cell-class-name="table-th" empty-text="暂无数据"
-                  v-loading="tableLoading">
+        <el-table :data="tableData" border header-cell-class-name="table-th" empty-text="暂无数据" v-loading="tableLoading">
           <el-table-column prop="idx" label="序号" width="60"/>
           <el-table-column prop="name" label="姓名" width="130">
             <template #header>
@@ -57,32 +57,50 @@
                 <el-switch v-model="switchName"/>
               </div>
             </template>
-            <template #default="scope">
-              <el-input class="modify-name" :disabled="!switchName" v-model="scope.row.name" clearable maxlength="10"/>
+            <template #default="{row}">
+              <el-input class="modify-name" :disabled="!switchName" v-model="row.name" clearable maxlength="10"/>
             </template>
           </el-table-column>
-          <el-table-column prop="age" label="年龄" width="70"></el-table-column>
-          <el-table-column prop="cardNo" label="身份证号" min-width="230">
-            <template #default="scope">
-              <p class="cardNo-p">
-                <span>{{ (scope.row.cardNo + '').slice(0, 6) }}&nbsp;</span>
-                <span>{{ (scope.row.cardNo + '').slice(6, 14) }}&nbsp;</span>
-                <span>{{ (scope.row.cardNo + '').slice(14, 18) }}</span>
+          <el-table-column prop="age" label="年龄" width="120">
+            <template #default="{row}">
+              <p v-if="row.age.year === 0 && row.age.month===0 && row.age.day === 0">
+                <span>{{ row.age.year }}岁</span>
+              </p>
+              <p v-else>
+                <span v-show="row.age.year">{{ row.age.year }}岁</span>
+                <span v-show="row.age.month">{{ row.age.month }}月</span>
+                <span v-show="row.age.day">{{ row.age.day }}天</span>
               </p>
             </template>
           </el-table-column>
+          <el-table-column prop="cardNo" label="身份证号" min-width="230">
+            <template #default="{row}">
+              <div style="display: flex; align-items: center;">
+                <p class="cardNo-p">
+                  <span>{{ (row.cardNo + '').slice(0, 6) }}&nbsp;</span>
+                  <span>{{ (row.cardNo + '').slice(6, 14) }}&nbsp;</span>
+                  <span>{{ (row.cardNo + '').slice(14, 18) }}</span>
+                </p>
+                <el-button
+                  text
+                  type="primary"
+                  @click="copyCardNo(row.cardNo)">复制
+                </el-button>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column label="其他" min-width="300" v-if="switchExtra">
-            <template #default="scope">
-              <el-input class="extra-card" v-model="scope.row.cardAddressDetail" placeholder="详细地址" clearable
+            <template #default="{row}">
+              <el-input class="extra-card" v-model="row.cardAddressDetail" placeholder="详细地址" clearable
                         maxlength="20"/>
-              <el-input class="extra-card" v-model="scope.row.cardDepartment" placeholder="签发机关" clearable
+              <el-input class="extra-card" v-model="row.cardDepartment" placeholder="签发机关" clearable
                         maxlength="20"/>
               <div class="extra-card extra-period">
-                <el-date-picker v-model="scope.row.cardPeriodFront" type="date" placeholder="有效起期"
+                <el-date-picker v-model="row.cardPeriodFront" type="date" placeholder="有效起期"
                                 value-format="YYYY/MM/DD"
                                 format="YYYY-MM-DD" clearable>
                 </el-date-picker>
-                <el-date-picker v-model="scope.row.cardPeriodEnd" type="date" placeholder="有效止期"
+                <el-date-picker v-model="row.cardPeriodEnd" type="date" placeholder="有效止期"
                                 value-format="YYYY/MM/DD"
                                 format="YYYY-MM-DD" clearable>
                 </el-date-picker>
@@ -90,23 +108,23 @@
             </template>
           </el-table-column>
           <el-table-column label="操作" width="200">
-            <template #default="scope">
+            <template #default="{row}">
               <div class="operation-col">
                 <el-button
                   text
                   type="primary"
-                  @click="copyCardNo(scope.row.cardNo)">复制
+                  @click="copyCardNo(row.cardNo)">复制
                 </el-button>
                 <el-button
                   text
                   type="primary"
-                  @click="genIdCardPicture(scope.row)">生成图片
+                  @click="genIdCardPicture(row)">生成图片
                 </el-button>
                 <el-button
                   style="margin-left: unset;"
                   text
                   type="primary"
-                  @click="changeAvatarImg(scope.row.idx)">更换头像
+                  @click="changeAvatarImg(row.idx)">更换头像
                 </el-button>
                 <el-button
                   text
@@ -253,7 +271,7 @@ const getAddressText = () => {
   areaAddress.text = province_list[provinceVal] + city_list[cityVal] + county_list[countryVal]
 }
 // 计算年龄
-const calculateAge = (data) => {
+/* const calculateAge = (data) => {
   if (!data) return -1
   const birthday = data.slice(0, 4) + '/' + data.slice(4, 6) + '/' + data.slice(6, 8)
   let returnAge
@@ -300,7 +318,53 @@ const calculateAge = (data) => {
     }
   }
   return returnAge
+} */
+
+const calculateAge = (data) => {
+  if (!data) return -1
+  const birthday = data.slice(0, 4) + '/' + data.slice(4, 6) + '/' + data.slice(6, 8)
+  const strBirthdayArr = new Date(birthday)
+  const birthYear = strBirthdayArr.getFullYear()
+  const birthMonth = strBirthdayArr.getMonth() + 1
+  const birthDay = strBirthdayArr.getDate()
+
+  const now = new Date()
+  const nowYear = now.getFullYear()
+  const nowMonth = now.getMonth() + 1
+  const nowDay = now.getDate()
+
+  let diffYear = nowYear - birthYear
+  let diffMonth = nowMonth - birthMonth
+  let diffDay = nowDay - birthDay
+  if (diffMonth < 0) {
+    diffYear--
+    diffMonth += 12
+  }
+  if (diffDay < 0) {
+    diffMonth--
+    if (diffMonth < 0) {
+      diffYear--
+      diffMonth += 12
+    }
+    const addDayYear = birthYear + diffYear
+    diffDay += getDaysInMonth(addDayYear, diffMonth)
+  }
+  return { year: diffYear, month: diffMonth, day: diffDay }
 }
+
+const isLeapYear = (year) => {
+  // 条件:能被4整除并且不能被100整除，或者被400整除的
+  let flag = false
+  if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
+    flag = true
+  }
+  return flag
+}
+
+const getDaysInMonth = (year, month) => {
+  return [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
+}
+
 // 获取指定范围内的随机数
 const randomAccess = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min
@@ -505,7 +569,11 @@ const getDateDiffList = (ageDiff, obj) => {
       idx: idx + 1,
       name: getRandomName(),
       cardNo: `${frontCode}${lastCode}`,
-      age: isSame ? diffStartYear : calculateAge(curBirthDay),
+      age: isSame ? {
+        year: diffStartYear,
+        month: 0,
+        day: 0,
+      } : calculateAge(curBirthDay),
     })
   })
   return cardNoList
@@ -697,8 +765,16 @@ const changeCurrentPage = (e) => {
     }
   }
 
-  .result {
+  .large-result {
+    width: 1200px;
+  }
+
+  .medium-result {
     width: 1000px;
+  }
+
+  .result {
+    //width: 1000px;
     margin: -10px auto 0;
     font-family: 'fzzdxjw-gb1-0';
 
