@@ -63,14 +63,28 @@
           </el-table-column>
           <el-table-column prop="age" label="年龄" width="120">
             <template #default="{row}">
-              <p v-if="row.age.year === 0 && row.age.month===0 && row.age.day === 0">
-                <span>{{ row.age.year }}岁</span>
-              </p>
-              <p v-else>
-                <span v-show="row.age.year">{{ row.age.year }}岁</span>
-                <span v-show="row.age.month">{{ row.age.month }}月</span>
-                <span v-show="row.age.day">{{ row.age.day }}天</span>
-              </p>
+              <template v-if="row.age.isExist">
+                <p v-if="row.age.year === 0 && row.age.month === 0 && row.age.day === 0">
+                  <span>{{ row.age.year }}岁</span>
+                </p>
+                <p v-else>
+                  <span v-show="row.age.year">{{ row.age.year }}岁</span>
+                  <span v-show="row.age.month">{{ row.age.month }}月</span>
+                  <span v-show="row.age.day">{{ row.age.day }}天</span>
+                </p>
+              </template>
+              <template v-else>
+                <p style="display: flex; flex-direction: column; color: red;">
+                  <span>不好意思</span>
+                  <span>你还是个细胞</span>
+                </p>
+                <p>
+                  <span>-</span>
+                  <span v-show="row.age.year">{{ row.age.year }}岁</span>
+                  <span v-show="row.age.month">{{ row.age.month }}月</span>
+                  <span v-show="row.age.day">{{ row.age.day }}天</span>
+                </p>
+              </template>
             </template>
           </el-table-column>
           <el-table-column prop="cardNo" label="身份证号" min-width="230">
@@ -271,71 +285,32 @@ const getAddressText = () => {
   areaAddress.text = province_list[provinceVal] + city_list[cityVal] + county_list[countryVal]
 }
 // 计算年龄
-/* const calculateAge = (data) => {
+const calculateAge = (data, nowDate = new Date()) => {
   if (!data) return -1
   const birthday = data.slice(0, 4) + '/' + data.slice(4, 6) + '/' + data.slice(6, 8)
-  let returnAge
   const strBirthdayArr = new Date(birthday)
   const birthYear = strBirthdayArr.getFullYear()
   const birthMonth = strBirthdayArr.getMonth() + 1
   const birthDay = strBirthdayArr.getDate()
 
-  const now = new Date()
+  const now = nowDate
   const nowYear = now.getFullYear()
   const nowMonth = now.getMonth() + 1
   const nowDay = now.getDate()
 
-  if (nowYear === birthYear) {
-    if (nowMonth < birthMonth) {
-      returnAge = -1
-    } else {
-      if (nowDay < birthDay) {
-        returnAge = -1
-      } else {
-        returnAge = 0// 同年 则为0岁
-      }
-    }
+  let diffYear, diffMonth, diffDay, isExist
+  // 出生日期大于当前日期
+  if (strBirthdayArr.getTime() > now.getTime()) {
+    diffYear = birthYear - nowYear
+    diffMonth = birthMonth - nowMonth
+    diffDay = birthDay - nowDay
+    isExist = false
   } else {
-    const ageDiff = nowYear - birthYear // 年之差
-    if (ageDiff > 0) {
-      if (nowMonth === birthMonth) {
-        const dayDiff = nowDay - birthDay// 日之差
-        if (dayDiff < 0) {
-          returnAge = ageDiff - 1
-        } else {
-          returnAge = ageDiff
-        }
-      } else {
-        const monthDiff = nowMonth - birthMonth// 月之差
-        if (monthDiff < 0) {
-          returnAge = ageDiff - 1
-        } else {
-          returnAge = ageDiff
-        }
-      }
-    } else {
-      returnAge = -1// 返回-1 表示出生日期输入错误 晚于今天
-    }
+    diffYear = nowYear - birthYear
+    diffMonth = nowMonth - birthMonth
+    diffDay = nowDay - birthDay
+    isExist = true
   }
-  return returnAge
-} */
-
-const calculateAge = (data) => {
-  if (!data) return -1
-  const birthday = data.slice(0, 4) + '/' + data.slice(4, 6) + '/' + data.slice(6, 8)
-  const strBirthdayArr = new Date(birthday)
-  const birthYear = strBirthdayArr.getFullYear()
-  const birthMonth = strBirthdayArr.getMonth() + 1
-  const birthDay = strBirthdayArr.getDate()
-
-  const now = new Date()
-  const nowYear = now.getFullYear()
-  const nowMonth = now.getMonth() + 1
-  const nowDay = now.getDate()
-
-  let diffYear = nowYear - birthYear
-  let diffMonth = nowMonth - birthMonth
-  let diffDay = nowDay - birthDay
   if (diffMonth < 0) {
     diffYear--
     diffMonth += 12
@@ -349,7 +324,7 @@ const calculateAge = (data) => {
     const addDayYear = birthYear + diffYear
     diffDay += getDaysInMonth(addDayYear, diffMonth)
   }
-  return { year: diffYear, month: diffMonth, day: diffDay }
+  return { year: diffYear, month: diffMonth, day: diffDay, isExist }
 }
 
 const isLeapYear = (year) => {
@@ -573,6 +548,7 @@ const getDateDiffList = (ageDiff, obj) => {
         year: diffStartYear,
         month: 0,
         day: 0,
+        isExist: true,
       } : calculateAge(curBirthDay),
     })
   })

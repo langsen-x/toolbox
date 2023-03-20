@@ -129,6 +129,10 @@ export default {
     const changeMonth = () => {
       console.log('monthVal:', monthVal.value)
       getDayOptions(yearVal.value, monthVal.value)
+      const lastDay = dayOptions.value[dayOptions.value.length - 1].value
+      if (dayVal.value > lastDay) {
+        dayVal.value = lastDay
+      }
       emitDate()
     }
     const changeDay = () => {
