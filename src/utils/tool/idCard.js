@@ -350,7 +350,7 @@ function image2Canvas({
   if (isFunc(afterDraw)) {
     afterDraw(ctx, canvas)
   }
-
+  imgWatermark(canvas)
   // return canvas
   canvas2DataUrl(canvas)
 }
@@ -360,4 +360,28 @@ function canvas2DataUrl(canvas, quality, type) {
   const DOMelement = document.getElementById('idCardImg')
   DOMelement.src = base64
   // return canvas.toDataURL(type || 'image/jpeg', quality || 0.8)
+}
+
+function imgWatermark(canvas) {
+  const ctx = canvas.getContext('2d')
+  ctx.fillStyle = 'rgb(0.08, 0.08, 0.2)'
+  ctx.globalAlpha = 0.3
+  ctx.font = '20px microsoft yahei'
+  ctx.rotate(Math.PI / 180 * -15)
+  let lineNumX = 0 // X轴行号
+  let lineNumY = 0 // Y轴行号
+  let tempX = 0
+  let targetX = 0 // 水印写入的X轴位置
+  let targetY = 0 // 水印写入的Y轴位置
+  for (let ix = 20; ix < canvas.width; ix += 220) { // 水印横向间隔
+    lineNumX++
+    lineNumY = 0
+    for (let iy = 10; iy <= canvas.height; iy += 130) { // 水印纵向间隔
+      lineNumY++
+      tempX = lineNumY * 110 * Math.sin(Math.PI / 180 * 15) // 由于canvas被旋转，所以需要计算偏移量
+      targetX = lineNumY & 1 ? ix - tempX : ix - tempX + 60
+      targetY = iy + lineNumX * 210 * Math.tan(Math.PI / 180 * 15)
+      ctx.fillText('仅为个人代码学习', targetX, targetY)
+    }
+  }
 }
