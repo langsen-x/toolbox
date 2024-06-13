@@ -3,7 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const axios = require('axios')
 
-const areaDataUrl = 'https://gitee.com/vant-contrib/vant/raw/dev/packages/vant-area-data/src/index.ts'
+const areaDataUrl = 'https://gitee.com/vant-contrib/vant/raw/main/packages/vant-area-data/src/index.ts'
 axios
   .get(
     areaDataUrl,
@@ -12,9 +12,18 @@ axios
     const { data } = res
     const js_tree_path = path.join(__dirname, 'areaTree.js')
     const js_path = path.join(__dirname, 'area.js')
-    let tempData = JSON.parse(JSON.stringify(data))
-    tempData = tempData.replace('export const', 'const') + '\n' + 'exports.areaList = areaList'
-    writeFile(js_path, tempData, (obj) => {
+    let dataStr = JSON.stringify(data)
+    let needData = dataStr.slice(0, dataStr.indexOf('type CascaderOption'))
+    needData = `${needData.slice(0, needData.length - 4)}"`
+    let tempData = JSON.parse(needData)
+    // let tempData = JSON.parse(dataStr)
+    tempData = tempData.replace('export const areaList: {\n' +
+      '  province_list: Record<string, string>;\n' +
+      '  city_list: Record<string, string>;\n' +
+      '  county_list: Record<string, string>;\n' +
+      '} ', 'export const areaList')
+    let areaTempData = tempData.replace('export ', '') + '\n' + 'exports.areaList = areaList'
+    writeFile(js_path, areaTempData, (obj) => {
       if (obj.result) {
         console.log('area.js 数据写入成功！')
         areaData()
@@ -22,7 +31,7 @@ axios
         console.log('area.js 数据写入失败！')
       }
     })
-    writeFile(js_tree_path, data, (obj) => {
+    writeFile(js_tree_path, tempData, (obj) => {
       if (obj.result) {
         console.log('areaTree.js 数据写入成功！')
       } else {
@@ -35,8 +44,8 @@ axios
     console.log('e', e)
   })
 
-function writeFile (path, data, callback) {
-  fs.writeFile(path, data, function (err) {
+function writeFile(path, data, callback) {
+  fs.writeFile(path, data, function(err) {
     if (err) {
       console.log(err)
       callback({ result: false })
@@ -45,8 +54,12 @@ function writeFile (path, data, callback) {
   })
 }
 
-function splitType (data) {
-  const areaStr = data.replace('export const areaList = ', '')
+function splitType(data) {
+  const areaStr = data.replace('export const areaList: {\n' +
+    '  province_list: Record<string, string>;\n' +
+    '  city_list: Record<string, string>;\n' +
+    '  county_list: Record<string, string>;\n' +
+    '} = ', '')
   const splitArr = areaStr.split('\n')
   const splitArrLen = splitArr.length
   // console.log("splitArr", splitArr)
@@ -100,7 +113,7 @@ function splitType (data) {
   }
 }
 
-function areaData () {
+function areaData() {
   const { areaList } = require('./area')
   const json_path = path.join(__dirname, 'area.json')
   const {
@@ -187,7 +200,7 @@ function areaData () {
   })
 }
 
-function areaTreeData (areaList) {
+function areaTreeData(areaList) {
   const areaTree = []
   const tree_path = path.join(__dirname, 'areaTree.json')
   const {

@@ -411,7 +411,7 @@ const getDateDayList = (year, month, day, type) => {
       if (type === 'before') {
         return monthBig.slice(day - 1, monthBig.length)
       } else if (type === 'after') {
-        return monthBig.slice(0, day - 1)
+        return monthBig.slice(0, day)
       }
     }
     return monthBig
@@ -420,7 +420,7 @@ const getDateDayList = (year, month, day, type) => {
       if (type === 'before') {
         return monthSmall.slice(day - 1, monthSmall.length)
       } else if (type === 'after') {
-        return monthSmall.slice(0, day - 1)
+        return monthSmall.slice(0, day)
       }
     }
     return monthSmall
@@ -434,7 +434,7 @@ const getDateDayList = (year, month, day, type) => {
         if (type === 'before') {
           return monthLeap.slice(day - 1, monthLeap.length)
         } else if (type === 'after') {
-          return monthLeap.slice(0, day - 1)
+          return monthLeap.slice(0, day)
         }
       }
       return monthLeap
@@ -443,7 +443,7 @@ const getDateDayList = (year, month, day, type) => {
         if (type === 'before') {
           return monthNoLeap.slice(day - 1, monthNoLeap.length)
         } else if (type === 'after') {
-          return monthNoLeap.slice(0, day - 1)
+          return monthNoLeap.slice(0, day)
         }
       }
       return monthNoLeap
